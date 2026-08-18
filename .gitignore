@@ -1,0 +1,29 @@
+# Build output
+bin/
+obj/
+Debug/
+Release/
+
+# Visual Studio
+.vs/
+*.user
+*.suo
+
+# VS Code
+.vscode/
+
+# Logs
+*.log
+logs/
+
+# Environment / secrets
+.env
+.env.*
+!.env.example
+
+# Test results
+TestResults/
+
+# OS files
+.DS_Store
+Thumbs.db
