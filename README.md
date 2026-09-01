@@ -18,4 +18,4 @@ This allows producer applications to remain independent of downstream consumers 
 
 
 ### Tasks
-[ ] 
+- [x] write get and post method for an event
