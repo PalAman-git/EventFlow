@@ -1,7 +1,16 @@
+namespace EventFlow.Models;
 public class Event
 {
-    public string? Id{get;set;}
-    public string? Description{get;set;}
-    public string? Name{get;set;}
-    public DateTime? Timestamp{get;set;}
+    public Guid Id{get;set;}
+    public string Type {get;set;} = string.Empty;
+    public string Payload{get;set;} = string.Empty;
+    public Status CurrStatus {get;set;} = Status.Pending;
+    public DateTime CreatedAt{get;set;} = DateTime.UtcNow;
+}
+
+public enum Status
+{
+    Pending,
+    Failed,
+    Delivered,
 }
