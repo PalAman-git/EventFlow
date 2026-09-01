@@ -16,6 +16,18 @@ Producers send events to EventFlow, which takes responsibility for receiving, pr
 
 This allows producer applications to remain independent of downstream consumers while EventFlow handles the complexity of asynchronous event processing.
 
+## Ultimate Goal
+Producer produces event and it does not have to worry about 
+- who consumes the event?
+- where are they?
+- Are they currently available?
+- Did they successfully process it?
+- should I retry?
+- what happens if they fail? 
+- How many times should I retry?
+- should I wait for them?
+
+These are the problem that my application is trying to solve
 
 ### Tasks
 - [x] write get and post method for an event
