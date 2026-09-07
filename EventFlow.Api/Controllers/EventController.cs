@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
-using EventFlow.Models;
-using EventFlow.Data;
+using EventFlow.Infrastructure.Data;
+using EventFlow.Infrastructure.Models;
 using System.Threading.Tasks;
 
 [ApiController]

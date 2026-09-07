@@ -1,5 +1,5 @@
-using EventFlow.Data;
 using Microsoft.EntityFrameworkCore;
+using EventFlow.Infrastructure.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
