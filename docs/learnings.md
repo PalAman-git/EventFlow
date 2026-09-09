@@ -1,0 +1,1 @@
+## Npgsql maintains internal connection pooling and db.saveAsync does not create new TCP connection to the postgres database everytime
