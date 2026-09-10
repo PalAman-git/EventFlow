@@ -13,3 +13,15 @@ Other reasons include:
 - Postgres database has feature for JSONB field so naturally, I can store the payload of the event in the JSONB format if I want that in future
 - For now I havent thought of how would I store but yeah it can help me.
 - On the top of all that I have seen several other microservice applications use postgres so yeah I am going with it.
+
+## I have a choice to choose Webhooks or polling for consumers to receive the events produced by producer.
+I choose webhooks for the following reasons:
+
+- It is way more efficient that polling and saves the system resources.
+- I dont want each of my consumers to repeadly ask for weather or not there is any event for them, I will use webhooks to send event
+to the consumers when event is produced.
+- Webhooks are in defination real time update , like as soon as event is created I can send to the consumers.
+- In Api there would be some latency due to their recuring period of polling like it could be after every 5 seconds.
+- There could be data loss if the consumers is not ready to accept the event so I have to solve that issue.
+
+[geeks for geeks article, Webhooks vs API polling](https://www.geeksforgeeks.org/blogs/what-is-a-webhook-and-how-to-use-it/)
