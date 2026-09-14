@@ -32,7 +32,8 @@ These are the problem that my application is trying to solve
 ### Tasks
 - [x] write get and post method for an event
 - [x] add postgres database using docker
-- [ ] add worker to process the events
+- [x] add worker to process the events
+- [ ] ensure worker delivers event to the consumer
 
 ## Getting Started
 
