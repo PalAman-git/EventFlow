@@ -35,10 +35,6 @@ These are the problem that my application is trying to solve
 - [x] add worker to process the events
 - [ ] ensure worker delivers event to the consumer
 
-# EventFlow
-
-EventFlow is an event processing system that allows producers to publish events and consumers to subscribe to specific event types through webhooks.
-
 ## Getting Started
 
 ### Prerequisites
