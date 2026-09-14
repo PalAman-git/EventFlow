@@ -13,4 +13,14 @@ To store the events.
 
 
 ## Subscriptions
-To store the consumers subscriptions, 
+
+To store the Consumer's Webhook and the type of event they are subscribed to.
+
+| id                                   | EventType          | WebhookUrl                     |
+|--------------------------------------|--------------------|--------------------------------|
+| `a12f4c8e-7b3d-4e91-9f25-6c8d1a2b3e4f` | `OrderCreated`      | `http://localhost:5001/webhook` |
+| `b23e5d9f-8c4e-4fa2-a036-7d9e2b3c4f5a` | `PaymentSuccessful` | `http://localhost:5002/webhook` |
+| `c34f6a0e-9d5f-4ab3-b147-8e0f3c4d5a6b` | `OrderCreated`      | `http://localhost:5003/webhook` |
+| `d45a7b1f-0e6a-4bc2-c258-9f1a4d5e6b7c` | `InventoryReserved` | `http://localhost:5003/webhook` |
+| `e56b8c2f-1f7b-4cd3-d369-0a2b5e6f7c8d` | `PaymentSuccessful` | `http://localhost:5003/webhook` |
+| `f67c9d3a-2a8c-4de4-e470-1b3c6f7d8e9f` | `NotificationSent`  | `http://localhost:5003/webhook` |
