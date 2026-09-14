@@ -35,125 +35,206 @@ These are the problem that my application is trying to solve
 - [x] add worker to process the events
 - [ ] ensure worker delivers event to the consumer
 
+# EventFlow
+
+EventFlow is an event processing system that allows producers to publish events and consumers to subscribe to specific event types through webhooks.
+
 ## Getting Started
 
 ### Prerequisites
+
 Make sure you have the following installed:
-- .NET SDK
-- Docker
 
-1. Clone the repository
+* [.NET SDK](https://dotnet.microsoft.com/download)
+* [Docker](https://www.docker.com/get-started/)
 
-```
-git clone [https://github.com/PalAman-git/EventFlow]
+### 1. Clone the repository
+
+```bash
+git clone https://github.com/PalAman-git/EventFlow.git
 cd EventFlow
 ```
 
-2. Start PostgreSQL
+### 2. Start PostgreSQL
 
 EventFlow uses PostgreSQL for persistent event storage.
-Start the PostgreSQL container using Docker Compose:
-```
+
+The repository includes a `docker-compose.yaml` file that configures the PostgreSQL service.
+
+Start the database:
+
+```bash
 docker compose up -d
 ```
-I have made docker-compose.yaml, this file contain the service postgreSQL.
+
 This creates:
-- Database: eventflow
-- User: eventflow
-- Port: 5432
 
-The postgres_data Docker volume persists PostgreSQL data even if the container is removed.
+| Configuration | Value           |
+| ------------- | --------------- |
+| Database      | `eventflow`     |
+| Username      | `eventflow`     |
+| Port          | `5432`          |
+| Docker Volume | `postgres_data` |
 
-3. Configure the database connection
+The `postgres_data` Docker volume persists PostgreSQL data even if the container is removed.
+
+Verify that the PostgreSQL container is running:
+
+```bash
+docker ps
+```
+
+### 3. Configure the database connection
 
 The application uses the following connection string:
-```
+
+```json
 {
   "ConnectionStrings": {
     "EventFlow": "Host=localhost;Port=5432;Database=eventflow;Username=eventflow;Password=eventflow_password"
   }
 }
 ```
-Since the .NET API currently runs on the host machine and PostgreSQL runs inside Docker, the host is localhost.
 
-4. Install EF Core CLI
+Since the ASP.NET Core application runs on the host machine while PostgreSQL runs inside Docker, the application connects to PostgreSQL through `localhost:5432`.
 
-If dotnet ef is not already installed:
+### 4. Install Entity Framework Core CLI
 
+If `dotnet ef` is not already installed:
+
+```bash
 dotnet tool install --global dotnet-ef
+```
 
 Verify the installation:
 
+```bash
 dotnet ef --version
+```
 
-5. Create the database schema
+### 5. Create the database schema
 
-EventFlow uses Entity Framework Core migrations to create and update the database schema.
+EventFlow uses **Entity Framework Core migrations** to create and update the PostgreSQL database schema.
 
 Create the initial migration:
 
+```bash
 dotnet ef migrations add InitialCreate
+```
 
 Apply the migration:
 
+```bash
 dotnet ef database update
+```
 
-This creates the required tables in the eventflow PostgreSQL database.
+This creates the required EventFlow tables in the `eventflow` PostgreSQL database.
 
-6. Run the application
+### 6. Run the application
 
-Start the ASP.NET Core application:
+Start the ASP.NET Core API:
 
+```bash
 dotnet run
+```
 
-The API will start on the URL shown in the terminal.
+The API will start at the URL displayed in the terminal.
 
-7. Test the API
+### 7. Test the API
 
 Create an event using:
 
+```http
 POST /api/events
+```
 
 Example request:
 
+```json
 {
   "type": "OrderCreated",
   "payload": "{\"orderId\":12345,\"customerId\":789,\"amount\":2499}"
 }
+```
 
-The event is persisted in PostgreSQL with an initial status of Pending.
+The event is persisted in PostgreSQL and can then be processed by EventFlow's event delivery workflow.
 
-Useful Docker commands
+---
 
-Check running containers:
+## Database
 
+EventFlow currently uses the following tables:
+
+### [Events](docs/postgres_tables.md) - stores the event produced by applications.
+
+### [Subscriptions](docs/postgres_tables.md) - stores consumers webhook url and type of events they are subscribed to.
+
+### [EventDeliveries](docs/postgres_tables.md) - tracks the delivery of each event for specific subscription.
+
+---
+
+## Useful Docker Commands
+
+### Check running containers
+
+```bash
 docker ps
+```
 
-Stop the PostgreSQL container:
+### Stop PostgreSQL
 
+```bash
 docker compose down
+```
 
-Start it again:
+### Start PostgreSQL again
 
+```bash
 docker compose up -d
+```
 
-View PostgreSQL logs:
+### View PostgreSQL logs
 
+```bash
 docker logs eventflow-postgres
-Connect to PostgreSQL
+```
 
-You can access the PostgreSQL database using psql:
+### Connect to PostgreSQL
 
+You can access the PostgreSQL database directly using `psql`:
+
+```bash
 docker exec -it eventflow-postgres psql -U eventflow -d eventflow
+```
 
-List tables:
+Once connected:
 
+### List tables
+
+```sql
 \dt
+```
 
-View events:
+### View events
 
+```sql
 SELECT * FROM "Events";
+```
 
-Exit:
+### View subscriptions
 
+```sql
+SELECT * FROM "Subscriptions";
+```
+
+### View event deliveries
+
+```sql
+SELECT * FROM "EventDeliveries";
+```
+
+### Exit PostgreSQL
+
+```sql
 \q
+```
