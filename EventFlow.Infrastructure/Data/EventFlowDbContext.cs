@@ -9,6 +9,10 @@ public class EventFlowDbContext : DbContext
 
     public DbSet<Event> Events => Set<Event>();
 
+    public DbSet<Subscription> Subscriptions => Set<Subscription>();
+
+    public DbSet<EventDelivery> EventDeliveries => Set<EventDelivery>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
