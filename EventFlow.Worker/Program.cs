@@ -4,6 +4,8 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = Host.CreateApplicationBuilder(args);
 
+builder.Services.AddHttpClient();
+
 builder.Services.AddDbContext<EventFlowDbContext>(options => 
     options.UseNpgsql(
         builder.Configuration.GetConnectionString("EventFlow")

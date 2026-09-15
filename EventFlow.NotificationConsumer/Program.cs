@@ -14,6 +14,8 @@ app.MapPost("/webhook", (EventDto eventDto) =>
     Console.WriteLine(eventDto.Type);
     Console.WriteLine(eventDto.Payload);
 
+    //process Event
+
     return Results.Ok();
 })
 .WithName("Webhook");
