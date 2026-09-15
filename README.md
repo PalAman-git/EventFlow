@@ -33,7 +33,8 @@ These are the problem that my application is trying to solve
 - [x] write get and post method for an event
 - [x] add postgres database using docker
 - [x] add worker to process the events
-- [ ] ensure worker delivers event to the consumer
+- [x] ensure worker delivers event to the consumer ✅
+- [x] complete the most basic flow of the app
 
 ## Getting Started
 
