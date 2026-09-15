@@ -21,10 +21,4 @@ public class EventsController: ControllerBase
 
         return Ok();
     }
-
-    [HttpGet("{id}")]
-    public IActionResult getEvent(int id)
-    {
-        return Ok($"got event with id : {id}");
-    }
 }
