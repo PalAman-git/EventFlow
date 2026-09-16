@@ -29,12 +29,28 @@ Producer produces event and it does not have to worry about
 
 These are the problem that my application is trying to solve
 
+## Architecture
+[docs/diagrams/v1_eventflow_architecture.png]
+
+## Performance
+
+| Metric | Result |
+|---|---:|
+| Event ingestion | X events/sec |
+| API p95 latency | X ms |
+| Webhook delivery | X deliveries/sec |
+| Retry recovery | X% |
+
+See [Performance Report](docs/performance.md).
+
+
 ### Tasks
 - [x] write get and post method for an event
 - [x] add postgres database using docker
 - [x] add worker to process the events
 - [x] ensure worker delivers event to the consumer ✅
 - [x] complete the most basic flow of the app
+
 
 ## Getting Started
 
@@ -235,3 +251,12 @@ SELECT * FROM "EventDeliveries";
 ```sql
 \q
 ```
+
+## Design Decisions
+[document](docs/decisions.md)
+
+## Problems I faced
+[document](docs/problem.md)
+
+## Questions I had
+[document](docs/questions.md)
