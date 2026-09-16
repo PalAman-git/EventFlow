@@ -1,36 +1,72 @@
 # EventFlow
-EventFlow is a high-throughput event processing system that receives events from external sources, processes them asynchronously, and reliably delivers them to the desired consumers with low latency.
+
+EventFlow is a high-throughput event processing system that sits between event producers and consumers.
+
+A producer sends an event to EventFlow, and EventFlow takes care of storing it, processing it asynchronously, and delivering it to the consumers that are interested in that event.
 
 ## Problem
-Modern applications often use a microservice architecture, where multiple services continuously generate events and other services need to react to or process those events.
 
-Handling this event processing directly within the producer application can introduce several challenges, including managing consumers, error handling, retries, delivery status, throughput, and failures.
+In a microservice architecture, one service often needs to notify multiple other services when something happens.
 
-It can also increase latency in the producer application and tightly couple the producer to its downstream consumers.
+For example, when an order is created, several services might need to react to it:
+
+- An inventory service may need to reserve the items.
+- A payment service may need to process the payment.
+- A notification service may need to notify the customer.
+
+If the producer has to directly communicate with all of these services, it starts becoming responsible for things that are outside its core responsibility.
+
+It now needs to know:
+
+- Which services consume the event?
+- Where are those services?
+- Are they currently available?
+- What happens if a consumer fails?
+- Should the request be retried?
+- How many times should it be retried?
+- Should the producer wait for the consumers to finish?
+
+This creates tighter coupling between the producer and its consumers and can also make the producer responsible for handling failures and delivery logic.
 
 ## Solution
 
-EventFlow acts as a dedicated layer between event producers and consumers.
+EventFlow acts as a layer between producers and consumers.
 
-Producers send events to EventFlow, which takes responsibility for receiving, processing, and reliably delivering those events to the appropriate consumers.
+Instead of a producer communicating directly with every consumer, it simply sends the event to EventFlow.
 
-This allows producer applications to remain independent of downstream consumers while EventFlow handles the complexity of asynchronous event processing.
+EventFlow then takes responsibility for:
 
-## Ultimate Goal
-Producer produces event and it does not have to worry about 
-- who consumes the event?
-- where are they?
+- Persisting the event
+- Identifying the consumers interested in that event
+- Creating deliveries for those consumers
+- Processing deliveries asynchronously
+- Tracking delivery status
+- Retrying failed deliveries
+
+This allows the producer to finish its work without having to know how or where the event will eventually be consumed.
+
+## The Goal
+
+The idea behind EventFlow is simple:
+
+> **The producer should produce the event. EventFlow should take care of what happens after that.**
+
+The producer shouldn't have to worry about:
+
+- Who consumes the event?
+- Where are the consumers?
 - Are they currently available?
-- Did they successfully process it?
-- should I retry?
-- what happens if they fail? 
-- How many times should I retry?
-- should I wait for them?
+- Did they successfully process the event?
+- Should the delivery be retried?
+- What happens if a consumer is temporarily unavailable?
+- How many times should a failed delivery be retried?
+- Should the producer wait for consumers to finish?
 
-These are the problem that my application is trying to solve
+These are the responsibilities that EventFlow is designed to handle.
 
 ## Architecture
-[docs/diagrams/v1_eventflow_architecture.png]
+
+![EventFlow Architecture](docs/diagrams/v1_eventflow_architecture.png)
 
 ## Performance
 
@@ -499,43 +535,6 @@ docker compose up --build -d
 
 ```bash
 docker compose down
-```
-
----
-
-## Project Architecture
-
-```text
-                         +----------------+
-                         |     Client     |
-                         +-------+--------+
-                                 |
-                                 | HTTP
-                                 v
-                         +---------------+
-                         | EventFlow API |
-                         +-------+-------+
-                                 |
-                                 v
-                         +---------------+
-                         |  PostgreSQL   |
-                         +-------+-------+
-                                 |
-                         EventDelivery
-                                 |
-                                 v
-                         +---------------+
-                         |     Worker    |
-                         +-------+-------+
-                                 |
-              +------------------+------------------+
-              |                  |                  |
-              v                  v                  v
-       +-------------+    +-------------+    +-------------+
-       | Consumer 1  |    | Consumer 2  |    | Consumer 3  |
-       |OrderCreated |    | Payment     |    | Inventory   |
-       |             |    | Successful  |    | Reserved    |
-       +-------------+    +-------------+    +-------------+
 ```
 
 EventFlow currently uses PostgreSQL-backed event delivery with a background worker. It does not require Kafka or RabbitMQ.
