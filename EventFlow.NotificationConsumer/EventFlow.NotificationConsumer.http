@@ -1,6 +1,0 @@
-@EventFlow.NotificationConsumer_HostAddress = http://localhost:5139
-
-GET {{EventFlow.NotificationConsumer_HostAddress}}/weatherforecast/
-Accept: application/json
-
-###

@@ -172,7 +172,7 @@ Example request:
 
 The event is persisted in PostgreSQL and can then be processed by EventFlow's event delivery workflow.
 
----
+
 
 ## Database
 
@@ -184,79 +184,12 @@ EventFlow currently uses the following tables:
 
 ### [EventDeliveries](docs/postgres_tables.md) - tracks the delivery of each event for specific subscription.
 
----
-
-## Useful Docker Commands
-
-### Check running containers
-
-```bash
-docker ps
-```
-
-### Stop PostgreSQL
-
-```bash
-docker compose down
-```
-
-### Start PostgreSQL again
-
-```bash
-docker compose up -d
-```
-
-### View PostgreSQL logs
-
-```bash
-docker logs eventflow-postgres
-```
-
-### Connect to PostgreSQL
-
-You can access the PostgreSQL database directly using `psql`:
-
-```bash
-docker exec -it eventflow-postgres psql -U eventflow -d eventflow
-```
-
-Once connected:
-
-### List tables
-
-```sql
-\dt
-```
-
-### View events
-
-```sql
-SELECT * FROM "Events";
-```
-
-### View subscriptions
-
-```sql
-SELECT * FROM "Subscriptions";
-```
-
-### View event deliveries
-
-```sql
-SELECT * FROM "EventDeliveries";
-```
-
-### Exit PostgreSQL
-
-```sql
-\q
-```
 
 ## Design Decisions
-[document](docs/decisions.md)
+[decisions.md](docs/decisions.md)
 
 ## Problems I faced
-[document](docs/problem.md)
+[problems.md](docs/problem.md)
 
 ## Questions I had
-[document](docs/questions.md)
+[questions.md](docs/questions.md)
