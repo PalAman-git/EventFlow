@@ -4,6 +4,7 @@ using EventFlow.Infrastructure.Data;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
+builder.Services.AddHealthChecks();
 
 builder.Services.AddDbContext<EventFlowDbContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("EventFlow")));
 
@@ -18,5 +19,6 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 app.MapControllers();
+app.MapHealthChecks("/health");
 
 app.Run();

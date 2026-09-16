@@ -28,7 +28,7 @@ var subscription = new SubscriptionRequest
 };
 
 var response = await client.PostAsJsonAsync(
-    $"{eventFlowUrl}/api/subscriptions",
+    $"{eventFlowUrl}/api/Subscription",
     subscription);
 
 response.EnsureSuccessStatusCode();
@@ -38,12 +38,10 @@ Console.WriteLine($"Registered {eventType} subscription at {webhookUrl}");
 app.MapPost("/webhook", (EventDto eventDto) =>
 {
     Console.WriteLine($"[{consumerName}] Received: {eventDto.Type}");
-    Console.WriteLine(eventDto.Payload);
+    Console.WriteLine(eventDto.Payload.RootElement.ToString());
 
     return Results.Ok();
 });
-
-
 app.Run();
 
 

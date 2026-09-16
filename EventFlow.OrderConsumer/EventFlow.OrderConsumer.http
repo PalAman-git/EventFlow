@@ -1,6 +1,0 @@
-@EventFlow.OrderConsumer_HostAddress = http://localhost:5011
-
-GET {{EventFlow.OrderConsumer_HostAddress}}/weatherforecast/
-Accept: application/json
-
-###
