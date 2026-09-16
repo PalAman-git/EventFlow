@@ -52,14 +52,19 @@ See [Performance Report](docs/performance.md).
 - [x] complete the most basic flow of the app
 
 
+
+
 ## Getting Started
 
 ### Prerequisites
 
 Make sure you have the following installed:
 
-* [.NET SDK](https://dotnet.microsoft.com/download)
-* [Docker](https://www.docker.com/get-started/)
+* [`.NET SDK`](https://dotnet.microsoft.com/download) — required if you want to run or develop EventFlow locally
+* [`Docker`](https://www.docker.com/get-started/)
+* Docker Compose — included with Docker Desktop
+
+---
 
 ### 1. Clone the repository
 
@@ -68,52 +73,164 @@ git clone https://github.com/PalAman-git/EventFlow.git
 cd EventFlow
 ```
 
-### 2. Start PostgreSQL
+---
 
-EventFlow uses PostgreSQL for persistent event storage.
+### 2. Start EventFlow with Docker Compose
 
-The repository includes a `docker-compose.yaml` file that configures the PostgreSQL service.
+EventFlow runs as multiple Docker containers:
 
-Start the database:
+* **API** — receives and stores events
+* **Worker** — processes pending event deliveries
+* **Consumer 1** — receives `OrderCreated` events
+* **Consumer 2** — receives `PaymentSuccessful` events
+* **Consumer 3** — receives `InventoryReserved` events
+* **PostgreSQL** — stores events, subscriptions, and deliveries
 
-```bash
-docker compose up -d
-```
-
-This creates:
-
-| Configuration | Value           |
-| ------------- | --------------- |
-| Database      | `eventflow`     |
-| Username      | `eventflow`     |
-| Port          | `5432`          |
-| Docker Volume | `postgres_data` |
-
-The `postgres_data` Docker volume persists PostgreSQL data even if the container is removed.
-
-Verify that the PostgreSQL container is running:
+Start all services:
 
 ```bash
-docker ps
+docker compose up --build
 ```
 
-### 3. Configure the database connection
+The first startup may take a few minutes because Docker needs to build the images.
 
-The application uses the following connection string:
+To run everything in the background:
 
-```json
-{
-  "ConnectionStrings": {
-    "EventFlow": "Host=localhost;Port=5432;Database=eventflow;Username=eventflow;Password=eventflow_password"
-  }
-}
+```bash
+docker compose up --build -d
 ```
 
-Since the ASP.NET Core application runs on the host machine while PostgreSQL runs inside Docker, the application connects to PostgreSQL through `localhost:5432`.
+---
 
-### 4. Install Entity Framework Core CLI
+### 3. Verify the containers
 
-If `dotnet ef` is not already installed:
+Check that all services are running:
+
+```bash
+docker compose ps
+```
+
+You should see services similar to:
+
+```text
+eventflow-api-1
+eventflow-worker-1
+eventflow-consumer-1-1
+eventflow-consumer-2-1
+eventflow-consumer-3-1
+eventflow-postgres
+```
+
+You can also check the logs:
+
+```bash
+docker compose logs -f
+```
+
+To check a specific service:
+
+```bash
+docker compose logs -f api
+```
+
+```bash
+docker compose logs -f worker
+```
+
+```bash
+docker compose logs -f consumer-1
+```
+
+---
+
+## Services and Ports
+
+| Service    | Description                          | Host Port |
+| ---------- | ------------------------------------ | --------: |
+| API        | EventFlow REST API                   |    `5000` |
+| Consumer 1 | `OrderCreated` webhook consumer      |    `8081` |
+| Consumer 2 | `PaymentSuccessful` webhook consumer |    `8082` |
+| Consumer 3 | `InventoryReserved` webhook consumer |    `8083` |
+| PostgreSQL | EventFlow database                   |    `5432` |
+
+The Worker does not expose a port because it runs as a background service.
+
+---
+
+## 4. API Health Check
+
+The API exposes a health endpoint:
+
+```http
+GET /health
+```
+
+From your host machine:
+
+```bash
+curl http://localhost:5000/health
+```
+
+The API is configured with a Docker health check, and the Consumer services wait for the API to become healthy before starting.
+
+---
+
+## 5. Database
+
+PostgreSQL runs inside Docker with the following configuration:
+
+| Configuration       | Value                |
+| ------------------- | -------------------- |
+| Database            | `eventflow`          |
+| Username            | `eventflow`          |
+| Password            | `eventflow_password` |
+| Port                | `5432`               |
+| Docker service name | `postgres`           |
+| Docker volume       | `postgres_data`      |
+
+The database is persisted using the `postgres_data` Docker volume.
+
+This means PostgreSQL data will remain available even if the PostgreSQL container is stopped or recreated.
+
+You can check the volume with:
+
+```bash
+docker volume ls
+```
+
+---
+
+## 6. Database Connection
+
+When EventFlow runs entirely through Docker Compose, the API and Worker connect to PostgreSQL using the Docker service name:
+
+```text
+Host=postgres
+```
+
+They should **not** use `localhost` for PostgreSQL from inside a container.
+
+Conceptually:
+
+```text
+EventFlow API
+     |
+     | Host=postgres:5432
+     v
+ PostgreSQL
+```
+
+Docker Compose provides internal DNS, so the service name `postgres` resolves automatically.
+
+---
+
+## 7. Database Migrations
+
+EventFlow uses Entity Framework Core migrations.
+
+If you are running the application entirely through Docker Compose, the application uses the database configured for the Docker environment.
+
+For development, if you need to create or modify migrations, install the EF Core CLI:
 
 ```bash
 dotnet tool install --global dotnet-ef
@@ -125,52 +242,304 @@ Verify the installation:
 dotnet ef --version
 ```
 
-### 5. Create the database schema
-
-EventFlow uses **Entity Framework Core migrations** to create and update the PostgreSQL database schema.
-
-Create the initial migration:
+Create a migration:
 
 ```bash
-dotnet ef migrations add InitialCreate
+dotnet ef migrations add <MigrationName>
 ```
 
-Apply the migration:
+Apply migrations:
 
 ```bash
 dotnet ef database update
 ```
 
-This creates the required EventFlow tables in the `eventflow` PostgreSQL database.
+> If PostgreSQL is running inside Docker while you run `dotnet ef` from your host machine, use `localhost:5432` for the database connection.
 
-### 6. Run the application
+---
 
-Start the ASP.NET Core API:
+# Using EventFlow
 
-```bash
-dotnet run
+## 8. Create an Event
+
+The API is available at:
+
+```text
+http://localhost:5000
 ```
-
-The API will start at the URL displayed in the terminal.
-
-### 7. Test the API
 
 Create an event using:
 
 ```http
-POST /api/events
+POST http://localhost:5000/api/events
 ```
 
-Example request:
+### Example: Order Created
 
 ```json
 {
   "type": "OrderCreated",
-  "payload": "{\"orderId\":12345,\"customerId\":789,\"amount\":2499}"
+  "payload": {
+    "orderId": "ORD-1001",
+    "amount": 2499,
+    "currency": "INR"
+  }
 }
 ```
 
-The event is persisted in PostgreSQL and can then be processed by EventFlow's event delivery workflow.
+The API stores the event in PostgreSQL.
+
+EventFlow then creates deliveries for consumers subscribed to the event type.
+
+---
+
+## 9. Example: Inventory Reserved
+
+You can also create an `InventoryReserved` event:
+
+```http
+POST http://localhost:5000/api/events
+```
+
+```json
+{
+  "type": "InventoryReserved",
+  "payload": {
+    "orderId": "ORD-1001",
+    "productId": "PROD-5001",
+    "quantity": 2,
+    "warehouseId": "WH-001",
+    "reservedAt": "2026-09-16T10:30:00Z"
+  }
+}
+```
+
+The event will be delivered to the consumer subscribed to `InventoryReserved`.
+
+---
+
+# How EventFlow Works
+
+The overall flow is:
+
+```text
+                    POST /api/events
+                           |
+                           v
+                    +-------------+
+                    | EventFlow API|
+                    +-------------+
+                           |
+                           v
+                    +-------------+
+                    | PostgreSQL  |
+                    +-------------+
+                           |
+                    Event Delivery
+                       created
+                           |
+                           v
+                    +-------------+
+                    |   Worker    |
+                    +-------------+
+                           |
+              +------------+------------+
+              |            |            |
+              v            v            v
+        Consumer 1   Consumer 2   Consumer 3
+        OrderCreated Payment      Inventory
+                     Successful   Reserved
+```
+
+The Worker is responsible for processing pending deliveries and sending HTTP POST requests to the appropriate consumer webhook.
+
+---
+
+## 10. Consumer Webhooks
+
+Each Consumer exposes a webhook endpoint:
+
+```text
+Consumer 1
+http://localhost:8081/webhook
+
+Consumer 2
+http://localhost:8082/webhook
+
+Consumer 3
+http://localhost:8083/webhook
+```
+
+Inside the Docker network, EventFlow uses the Docker service names:
+
+```text
+http://consumer-1:8080/webhook
+http://consumer-2:8080/webhook
+http://consumer-3:8080/webhook
+```
+
+This distinction is important:
+
+* `localhost` is used when accessing a service from your **host machine**
+* Docker service names such as `consumer-1` and `postgres` are used when one **container communicates with another container**
+
+---
+
+# 11. Testing the Event Delivery Workflow
+
+Start the complete system:
+
+```bash
+docker compose up --build
+```
+
+Then create an event:
+
+```http
+POST http://localhost:5000/api/events
+```
+
+For example:
+
+```json
+{
+  "type": "OrderCreated",
+  "payload": {
+    "orderId": "ORD-1001",
+    "amount": 2499,
+    "currency": "INR"
+  }
+}
+```
+
+You can watch the Worker logs:
+
+```bash
+docker compose logs -f worker
+```
+
+And the Consumer logs:
+
+```bash
+docker compose logs -f consumer-1
+```
+
+You should see the Worker process the delivery and the corresponding Consumer receive the webhook.
+
+---
+
+# 12. Stop EventFlow
+
+Stop all containers:
+
+```bash
+docker compose down
+```
+
+The PostgreSQL data remains stored in the `postgres_data` volume.
+
+To stop the containers **and delete the database volume**:
+
+```bash
+docker compose down -v
+```
+
+> Warning: `docker compose down -v` deletes the PostgreSQL volume and therefore removes the persisted EventFlow database data.
+
+---
+
+# Troubleshooting
+
+### Check all containers
+
+```bash
+docker compose ps
+```
+
+### View all logs
+
+```bash
+docker compose logs -f
+```
+
+### View API logs
+
+```bash
+docker compose logs -f api
+```
+
+### View Worker logs
+
+```bash
+docker compose logs -f worker
+```
+
+### View Consumer logs
+
+```bash
+docker compose logs -f consumer-1
+```
+
+### Rebuild everything
+
+If you changed the Dockerfiles or application code:
+
+```bash
+docker compose down
+docker compose up --build
+```
+
+### Start everything in the background
+
+```bash
+docker compose up --build -d
+```
+
+### Stop everything
+
+```bash
+docker compose down
+```
+
+---
+
+## Project Architecture
+
+```text
+                         +----------------+
+                         |     Client     |
+                         +-------+--------+
+                                 |
+                                 | HTTP
+                                 v
+                         +---------------+
+                         | EventFlow API |
+                         +-------+-------+
+                                 |
+                                 v
+                         +---------------+
+                         |  PostgreSQL   |
+                         +-------+-------+
+                                 |
+                         EventDelivery
+                                 |
+                                 v
+                         +---------------+
+                         |     Worker    |
+                         +-------+-------+
+                                 |
+              +------------------+------------------+
+              |                  |                  |
+              v                  v                  v
+       +-------------+    +-------------+    +-------------+
+       | Consumer 1  |    | Consumer 2  |    | Consumer 3  |
+       |OrderCreated |    | Payment     |    | Inventory   |
+       |             |    | Successful  |    | Reserved    |
+       +-------------+    +-------------+    +-------------+
+```
+
+EventFlow currently uses PostgreSQL-backed event delivery with a background worker. It does not require Kafka or RabbitMQ.
+
 
 
 
