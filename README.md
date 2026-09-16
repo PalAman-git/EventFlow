@@ -66,7 +66,7 @@ These are the responsibilities that EventFlow is designed to handle.
 
 ## Architecture
 
-![EventFlow Architecture](docs/diagrams/v1_eventflow_architecture.png)
+![EventFlow Architecture](docs/diagrams/eventFlowMVP.png)
 
 ## Performance
 
