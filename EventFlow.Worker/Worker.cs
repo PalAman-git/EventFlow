@@ -1,4 +1,3 @@
-using System.Data.Common;
 using System.Net.Http.Json;
 using System.Text.Json;
 using EventFlow.Infrastructure.Data;
@@ -80,7 +79,7 @@ public class Worker : BackgroundService
                 }
             }
         
-            await Task.Delay(5000,stoppingToken);
+            await Task.Delay(1000,stoppingToken);
         }
     }
 }
