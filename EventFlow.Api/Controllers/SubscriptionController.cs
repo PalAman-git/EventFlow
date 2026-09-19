@@ -1,6 +1,7 @@
 using System.Threading.Tasks;
 using EventFlow.Infrastructure.Data;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace EventFlow.Api.Controllers;
 
@@ -15,6 +16,13 @@ public class SubscriptionController(EventFlowDbContext db) : ControllerBase
     {
         try
         {
+            bool exists = await _db.Subscriptions.AnyAsync( s => s.EventType == body.EventType && s.WebhookUrl == body.WebhookUrl,cancellationToken);
+
+            if (exists)
+            {
+                return Ok();
+            }
+
             await _db.Subscriptions.AddAsync(new Subscription {
                 EventType = body.EventType,
                 WebhookUrl = body.WebhookUrl

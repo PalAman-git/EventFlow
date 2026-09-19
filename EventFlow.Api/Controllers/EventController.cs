@@ -16,7 +16,7 @@ public class EventsController: ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> PostEvent(Event eventData){
+    public async Task<IActionResult> PostEvent([FromBody] Event eventData){
 
         await using IDbContextTransaction transaction = await _db.Database.BeginTransactionAsync();
 
@@ -29,7 +29,7 @@ public class EventsController: ControllerBase
             {
                 await _db.EventDeliveries.AddAsync(new EventDelivery
                 {
-                    Id = new Guid(),
+                    Id = Guid.NewGuid(),
                     EventId = eventData.Id,
                     SubscriptionId = subscriber.Id,
                     Status = DeliveryStatus.Pending,
