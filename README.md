@@ -70,14 +70,26 @@ These are the responsibilities that EventFlow is designed to handle.
 
 ## Performance
 
+EventFlow's ingestion API was benchmarked using [k6](https://grafana.com) with 10 concurrent virtual users.
+
+### Ingestion Benchmark
+
 | Metric | Result |
 |---|---:|
-| Event ingestion | X events/sec |
-| API p95 latency | X ms |
-| Webhook delivery | X deliveries/sec |
-| Retry recovery | X% |
+| Event ingestion | 1652.76 req/sec |
+| API p90 latency | 8.35 ms |
+| API p95 latency | 9.77 ms |
+| API maximum latency | 892.96 ms |
+| Success rate | 100% |
+| Median latency | 4.91% |
+| Virtual users | 10 |
 
-See [Performance Report](docs/performance.md).
+Summary 
+
+This test was conducted in docker environment with 10 virtual users for 30 seconds.
+| Note: This benchmarks measure the ingestion performance of EventFlow. It does not represent end-to-end webhook delivery throughput
+| [View the complete benchmark methodology and results ->](benchmarks/README.md)
+
 
 
 ### Tasks
