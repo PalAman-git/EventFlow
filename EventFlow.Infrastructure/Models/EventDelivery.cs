@@ -7,6 +7,7 @@ public class EventDelivery
     public Guid SubscriptionId{get;set;}
     public DeliveryStatus Status{get;set;}
     public int RetryCount{get;set;}
+    public DateTime? DeliveredAt {get;set;}
 
     public DateTime? LastAttemptedAt {get;set;}
     public Event Event {get;set;} = null!;
