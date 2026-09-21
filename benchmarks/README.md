@@ -6,13 +6,12 @@ The benchmarks are divided into two separate areas:
 - **Ingestion** — measuring how quickly EventFlow can accept incoming events.
 - **Delivery** — measuring how quickly workers can process and deliver events to subscribed webhooks.
 
----
 
 ## 1. Event Ingestion Benchmark
 
 ### What is being measured?
 The ingestion benchmark measures the following path:
-
+```text
 k6
  │
  │ POST /api/events
@@ -27,6 +26,7 @@ EventFlow API
  │
  ▼
 PostgreSQL
+```
 
 > **Note:** This benchmark measures event ingestion and persistence. It does not measure end-to-end webhook delivery.
 
@@ -53,7 +53,7 @@ PostgreSQL
 | **HTTP Failure Rate** | 0% |
 
 #### Latency Distribution
-
+| Latency | Result |
 | :--- | :--- |
 | **p50** | 4.91 ms |
 | **p90** | 8.35 ms |
@@ -72,6 +72,7 @@ This benchmark should **not** be interpreted as: *"EventFlow can deliver 1,653 w
 
 End-to-end delivery involves additional processing:
 
+```text
 Incoming Event
 │
 ▼
@@ -88,6 +89,7 @@ HTTP Webhook
 │
 ▼
 Consumer
+```
 
 A separate **delivery benchmark** will measure:
 - Worker throughput
@@ -115,17 +117,8 @@ benchmarks/k6/ingestion.js
 ```
 
 ## 4. Benchmark Environment
-Results can vary depending on hardware, database configuration, Docker resources, and workload. The test environment should be recorded alongside future benchmark results.
-
-| Component |	Configuration |
-| :--- | :--- |
-| CPU |	TBD |
-| RAM |	TBD |
-| Operating System | TBD |
-| .NET | TBD |
-| PostgreSQL |	TBD |
-| Docker |	TBD |
-| k6 | TBD |
+The benchmark was executed locally with EventFlow and PostgreSQL running
+inside Docker containers. k6 generated the HTTP load from the host machine.
 
 ## 5. Future Benchmarks
 - Future tests will evaluate:
@@ -153,4 +146,4 @@ Future optimization experiments will be recorded here to make performance change
 
 | Version |	Throughput | p50 | p95 | Error Rate | Notes |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| **Initial** | 1,652.76 req/s | 4.91ms | 9.77ms | 0% |
+| **Initial** | 1,652.76 req/s | 4.91ms | 9.77ms | 0% | baseline |
