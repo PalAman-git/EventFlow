@@ -87,8 +87,8 @@ EventFlow's ingestion API was benchmarked using [k6](https://grafana.com) with 1
 Summary 
 
 This test was conducted in docker environment with 10 virtual users for 30 seconds.
-| Note: This benchmarks measure the ingestion performance of EventFlow. It does not represent end-to-end webhook delivery throughput
-| [View the complete benchmark methodology and results ->](benchmarks/README.md)
+> Note: This benchmarks measure the ingestion performance of EventFlow. It does not represent end-to-end webhook delivery throughput
+> [View the complete benchmark methodology and results ->](benchmarks/README.md)
 
 
 
