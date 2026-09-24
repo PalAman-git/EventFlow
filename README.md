@@ -98,6 +98,9 @@ This test was conducted in docker environment with 10 virtual users for 30 secon
 - [x] add worker to process the events
 - [x] ensure worker delivers event to the consumer ✅
 - [x] complete the most basic flow of the app
+- [x] test ingestion for api
+- [x] test average latency of event delivery
+- [ ] migrate worker from sequential to concurrent delivery events
 
 
 
