@@ -95,9 +95,10 @@ DeliveredAt - Event.CreatedAt
 ### Initial Results
 The initial worker run produced the following result:
 
-| **Event Generated/s** | **Woker Instances** | **Avg delivery latency** | **Max Batch Size** |
-| :--- | :--- | :--- | :--- |
-| 10 | 1 | 518.8 ms | 100 event |
+| **Event Generated/s** | **Running time** | **Woker Instances** | **Batch size** | **Avg delivery latency** |
+| :--- | :--- | :--- | :--- | :--- |
+| 10 | 30s | 1 | 100 events | 518.8 ms |
+| 20 | 30s | 1 | 100 events | 540 ms |
 
 
 The average was calculated using:
