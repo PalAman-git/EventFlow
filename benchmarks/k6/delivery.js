@@ -4,10 +4,10 @@ import { check } from 'k6';
 export const options = {
 
     scenarios:{
-        event_ingestion:{
+        worker_throughput:{
             executor: 'constant-arrival-rate',
 
-            rate: 20,
+            rate: 100,
             timeUnit: '1s',
 
             duration: '30s',

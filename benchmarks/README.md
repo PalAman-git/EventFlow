@@ -95,10 +95,14 @@ DeliveredAt - Event.CreatedAt
 ### Initial Results
 The initial worker run produced the following result:
 
-| **Event Generated/s** | **Running time** | **Woker Instances** | **Batch size** | **Avg delivery latency** |
-| :--- | :--- | :--- | :--- | :--- |
-| 10 | 30s | 1 | 100 events | 518.8 ms |
-| 20 | 30s | 1 | 100 events | 540 ms |
+| **Event Generated/s** | **Running time** | **Woker Instances** | **Batch size** | **Events Delivered** | **Avg delivery latency** |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| 10 | 30s | 1 | 100 events | 300 | 518.8 ms |
+| 20 | 30s | 1 | 100 events | 600 | 540 ms |
+| 30 | 30s | 1 | 100 events | 900 | 554 ms |
+| 50 | 30s | 1 | 100 events | 1500 | 602.3 ms |
+| 75 | 30s | 1 | 100 events | 2250 | 662 ms |
+| 100 | 30s | 1 | 100 events | 3000 | 3.60 s |
 
 
 The average was calculated using:
@@ -111,6 +115,8 @@ JOIN "EventDeliveries" ed
     ON e."Id" = ed."EventId"
 WHERE ed."DeliveredAt" IS NOT NULL;
 ```
+
+Before every test the database was cleaned so as to get accurate data for that particular test
 
 
 ## 3. Running the Benchmark
