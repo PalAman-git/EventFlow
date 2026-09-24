@@ -1,4 +1,5 @@
 using System.Net.Http.Json;
+using System.Security.Cryptography.X509Certificates;
 using System.Text.Json;
 using EventFlow.Infrastructure.Data;
 using EventFlow.Infrastructure.Models;
@@ -34,7 +35,9 @@ public class Worker : BackgroundService
                 .Where(e =>
                     e.Status == DeliveryStatus.Pending || 
                     e.Status == DeliveryStatus.Failed
-                ).ToListAsync(stoppingToken);
+                )
+                .Take(100)
+                .ToListAsync(stoppingToken);
                 
             foreach(var eventToDeliver in pendingEvent)
             {
@@ -63,7 +66,8 @@ public class Worker : BackgroundService
                 {
                     //consumer successfully responded
                     await db.EventDeliveries.Where(ed => ed.Id ==eventToDeliver.Id).ExecuteUpdateAsync(ed => ed
-                        .SetProperty( x => x.Status,DeliveryStatus.Delivered),
+                        .SetProperty( x => x.Status,DeliveryStatus.Delivered)
+                        .SetProperty( x => x.DeliveredAt,DateTime.UtcNow),
                         stoppingToken
                     );
                 }

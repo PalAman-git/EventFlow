@@ -2,8 +2,20 @@ import http from 'k6/http';
 import { check } from 'k6';
 
 export const options = {
-    vus:10,
-    duration:'30s',
+
+    scenarios:{
+        event_ingestion:{
+            executor: 'constant-arrival-rate',
+
+            rate: 10,
+            timeUnit: '1s',
+
+            duration: '30s',
+
+            preAllocatedVUs: 3,
+            maxVUs: 10
+        }
+    }
 }
 
 export default function (){

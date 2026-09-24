@@ -66,20 +66,17 @@ PostgreSQL
 - The maximum observed latency was **892.96 ms**, which indicates that a small number of requests experienced significantly higher latency than the majority.
 - These outliers are retained in the results rather than excluded and will be investigated in future profiling runs.
 
-## 2. What This Benchmark Does Not Measure
+## 2. Event Delivery Benchmark
 
-This benchmark should **not** be interpreted as: *"EventFlow can deliver 1,653 webhooks/sec."* The benchmark measures the **ingestion path only**.
+### What is being measured?
 
-End-to-end delivery involves additional processing:
+The delivery benchmark measures the time from when an event is created until its subscribed webhook is successfully delivered.
 
 ```text
-Incoming Event
+Event Created
 │
 ▼
-Database
-│
-▼
-EventDelivery
+EventDelivery (Pending)
 │
 ▼
 Worker
@@ -88,17 +85,32 @@ Worker
 HTTP Webhook
 │
 ▼
-Consumer
+DeliveredAt
+```
+The measured latency is:
+DeliveredAt - Event.CreatedAt
+
+> **Note:** This represents end-to-end delivery latency. It includes time spent waiting for the worker to pick up the pending delivery, worker processing time, and HTTP webhook delivery time.
+
+### Initial Results
+The initial worker run produced the following result:
+
+| **Event Generated/s** | **Woker Instances** | **Avg delivery latency** | **Max Batch Size** |
+| :--- | :--- | :--- | :--- |
+| 10 | 1 | 518.8 ms | 100 event |
+
+
+The average was calculated using:
+
+```sql
+SELECT 
+    AVG(ed."DeliveredAt" - e."CreatedAt") AS delivery_time
+FROM "Events" e
+JOIN "EventDeliveries" ed
+    ON e."Id" = ed."EventId"
+WHERE ed."DeliveredAt" IS NOT NULL;
 ```
 
-A separate **delivery benchmark** will measure:
-- Worker throughput
-- Webhook delivery latency
-- Successful deliveries
-- Failed deliveries
-- Retry behaviour
-- End-to-end processing time
-- Multiple worker instances
 
 ## 3. Running the Benchmark
 

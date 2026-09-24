@@ -5,6 +5,8 @@ services:
       dockerfile: EventFlow.Api/Dockerfile
     ports:
       - "5000:8080"
+    environment:
+      ConnectionStrings__EventFlow: "Host=postgres;Port=5432;Database=eventflow;Username=eventflow;Password=eventflow_password"
     healthcheck:
       test: ["CMD", "curl","-f","http://localhost:8080/health"]
       interval: 5s
@@ -15,7 +17,8 @@ services:
     build: 
       context: .
       dockerfile: EventFlow.Worker/Dockerfile
-    
+    environment:
+      ConnectionStrings__EventFlow: "Host=postgres;Port=5432;Database=eventflow;Username=eventflow;Password=eventflow_password"
   consumer-1:
     build: 
       context: .
